@@ -1,48 +1,61 @@
 # Filament Inventory Manager 🚀
 
-نظام ذكي ومبسط لإدارة المخازن والمنتجات، تم بناؤه لتوفير تجربة مستخدم سلسة وأداء عالي في إدارة الكميات والمخزون عبر مستودعات متعددة. المشروع مصمم كـ Portfolio يبرز مهارات هندسة الخلفية (Backend Architecture) وكتابة الكود النظيف.
+A robust, optimized, and scalable multi-store inventory management system built with **Laravel 12** and **Filament PHP v5**. This project is crafted as a portfolio piece to demonstrate advanced backend architecture, clean code standards, and efficient database design.
 
-## 🛠️ تقنيات المشروع (Tech Stack)
+---
 
-* **Framework:** Laravel 12 ⚡
-* **Admin Panel:** Filament PHP v5 (تعتمد على Livewire v4) 🎨
+## 🛠️ Tech Stack
+
+* **Backend Framework:** Laravel 12 ⚡
+* **Admin Panel:** Filament PHP v5 (Powered by Livewire v4) 🎨
 * **Database:** MySQL 🗄️
-* **Environment:** Ubuntu Linux 🐧
+* **OS Environment:** Ubuntu Linux 🐧
 
 ---
 
-## ✨ المميزات الرئيسية (Key Features)
+## ✨ Core Architecture & Key Features
 
-1. **إدارة المنتجات والمتاجر (Full CRUD):** فصل كامل ومنطقي لبيانات المنتجات الأساسية عن المستودعات والمتاجر.
-2. **إدخال ذكي للمخزون (Dynamic Pivot Management):** إمكانية جرد وتعيين المنتجات لكل متجر وتحديد كمياتها بدقة من داخل صفحة المتجر نفسه عبر الـ `Repeater` المخصص لموديل الـ Pivot.
-3. **منع الأخطاء البشرية (UX Validation):** حظر تكرار اختيار نفس المنتج داخل المتجر الواحد تلقائياً في واجهة المستخدم عبر خاصية `disableOptionsWhenSelectedInSiblingRepeaterItems()`.
-4. **أداء عالي واستعلامات ذكية (Optimized Queries):** حساب وعرض إجمالي المخزون لكل منتج في جدول العرض الرئيسي من خلال دمج الاستعلامات وسرعة الـ `Database Subqueries` لمنع مشكلة الـ `N+1 Query`.
+### 1. Advanced Eloquent & Pivot Schema Design
+* Implemented a clean **Many-to-Many** relationship between `Products` and `Stores` via a dedicated custom Pivot model (`ProductStore`) extending Laravel's core `Pivot` class.
+* Strict database integrity with `cascadeOnDelete()` and a `composite unique key` `['product_id', 'store_id']` at the database level to prevent redundant records.
+
+### 2. High-Performance Database Subqueries (No N+1 Problem)
+* The total available stock across all warehouses is aggregated directly at the database level using Laravel's dynamic subqueries `->sum('productStores', 'quantity')`. This ensures **$O(1)$ query execution load** regardless of data scale.
+
+### 3. Bulletproof UX & Data Validation
+* Implemented a dynamic `Repeater` form inside the Store Resource allowing seamless in-form inventory adjustment.
+* Leveraged Filament's `disableOptionsWhenSelectedInSiblingRepeaterItems()` and `distinct()` constraints to prevent users from selecting the same product multiple times within the same warehouse inventory sheet.
+* Enforced strict backend and frontend numeric validation (`minValue(0)`) to ensure inventory counts can never drop into negative values.
 
 ---
 
-## 📸 لقطات من لوحة التحكم (Screenshots)
+## 📸 Screenshots & UI Tour
 
-### شاشة عرض المنتجات وإجمالي المخزون
-هنا يتم عرض المنتجات والمتاجر المتواجدة بها مع حساب إجمالي المخزون الفعلي من قاعدة البيانات مباشرة:
+### 🔹 Products Management & Aggregated Stock
+Real-time tracking of product listings showing price formatting, assigned badges for active stores, and calculated total stock via optimized subqueries:
 
 ![Products List](screenshots/products-list.png)
 
-### شاشة إدارة جرد المتجر (الـ Repeater والكميات)
-*(إذا التقطت صورة للفورم، يمكنك إزالة التعليق وتفعيل السطر بالأسفل)*
----
+### 🔹 Dynamic Store Inventory Form (In-Form Pivot Manipulation)
+The reactive inventory sheet where managers allocate products and distinct quantities directly from the store dashboard:
 
-## 🗄️ هيكل قاعدة البيانات (Database Schema)
-
-المشروع يعتمد على بنية جداول مرنة:
-* `products`: تخزين بيانات المنتج والـ SKU الفريد والسعر.
-* `stores`: تخزين بيانات المستودعات والمتاجر ومواقعها.
-* `product_store` (Pivot Table): يربط المنتجات بالمتاجر ويحتوي على حقل الـ `quantity` والـ Timestamps، ويدار برمجياً عبر موديل وسيط مخصص يورث من كلاس `Pivot`.
+![Store Form](screenshots/store-form.png)
 
 ---
 
-## 🚀 التشغيل المحلي (Installation)
+## 🗄️ Database Schema Representation
 
-1. قم بعمل Clone للمشروع:
-```bash
-git clone git@github.com:hussein-code-lab/filament-inventory-manager.git
-cd filament-inventory-manager
+* **`products`:** `id` | `name` | `sku` (Unique Indexed) | `price` | `description` | `timestamps`
+* **`stores`:** `id` | `name` | `location` | `timestamps`
+* **`product_store` (Pivot):** `id` | `product_id` (FK) | `store_id` (FK) | `quantity` (Default: 0) | `timestamps`
+
+---
+
+## 🚀 Local Installation Guide
+
+Follow these steps to spin up the project locally on your environment (Optimized for Ubuntu Linux):
+
+1. **Clone the repository:**
+   ```bash
+   git clone git@github.com:hussein-code-lab/filament-inventory-manager.git
+   cd filament-inventory-manager
